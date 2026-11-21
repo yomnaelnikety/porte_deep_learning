@@ -1,0 +1,5 @@
+# Overleaf report
+
+Upload the report ZIP via Overleaf → New Project → Upload Project. The ZIP root contains `main.tex`. Compile with pdfLaTeX. The cover already lists Porte, the team members and the repository URL. Assign the prompts in `sections/` to their owners.
+
+Aim for **5–8 pages of main text**, excluding the cover and references. A suggested page budget is 1–1.5 for data and representations, 1–1.5 for models and validation, 1.5–2 for results and errors, 1–1.5 for generation, and about half a page for limitations and conclusion. Replace blue prompts with findings before submission. Update the model comparison with deep models and final test results. Regenerate classical figures and tables from the repository, then replace the corresponding `tables/` and `figures/` files in the existing Overleaf project. For this revision, also replace the classical methods and evaluation source files in `sections/02_models.tex` and `sections/03_evaluation.tex`, which describe the event-pair exclusion.

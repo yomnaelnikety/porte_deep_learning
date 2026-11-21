@@ -1,0 +1,12 @@
+\section{Validation and optimization}
+We use an 80/20 split by system ID with seed 2210. Cutoffs are sampled from lengths 90 through 250 subject to the availability of a next event. The outer training partition supplies 12 distinct cutoffs per machine. Validation uses eight fixed cutoffs per held-out machine, giving 10,400 predictions across 1,300 machines. The models use a common validation manifest and class order. We measure the mean negative natural logarithm of the assigned true-class probability,
+\[
+  \mathcal{L}=-\frac{1}{N}\sum_{i=1}^{N}\log p_i(y_i).
+\]
+Within the 5,200 outer training machines, we fit the classical model on 4,160 machines, tune and early stop on 520, and fit and select a calibration method on a separate 520. We test regularized trees with a learning rate of 0.04 and 7, 15 or 31 leaves. All feature and cutoff-count ablations fix the selected tree settings and number of boosting rounds. Calibration variants use the same raw tree probabilities. Temperature scaling applies a softmax to the log probabilities divided by a fitted temperature. Prior blending interpolates the raw predictions with a smoothed calibration-set class prior.
+
+For each ablation, we compute paired differences in log loss on matching cutoffs and resample 1,300 machines with replacement 5,000 times, retaining all their cutoffs. The 2.5th and 97.5th percentiles give the interval. The experiment log records the protocol version and preserves the original runs. The team reserves the provided test labels for final evaluation.
+
+If the classical pipeline is chosen for final testing, the prediction command refits the tree on all 6,500 labeled machines using the fixed cutoffs from both local splits and the selected number of rounds. The refit excludes the event pair and applies the selected calibration method. Any calibration parameters were estimated during development on the separate 520-machine calibration set using predictions from the tree trained on 4,160 fitting machines. Their effect after transfer to the refit is unverified.
+
+\todo{List each deep model's tuning search, checkpoint criteria, calibration data and final refit protocol.}

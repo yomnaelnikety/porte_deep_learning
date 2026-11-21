@@ -1,0 +1,17 @@
+\begin{table}[htbp]
+\centering\small
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+Run & Log loss & $\Delta$ vs. raw & 95\% paired CI \\
+\midrule
+drop\_lags & 1.5274 & +0.0080 & [+0.0048, +0.0112] \\
+drop\_counts & 1.5383 & +0.0189 & [+0.0154, +0.0223] \\
+drop\_time & 1.5374 & +0.0180 & [+0.0141, +0.0218] \\
+drop\_sensors & 1.5219 & +0.0024 & [-0.0005, +0.0055] \\
+add\_pair\_back & 1.5413 & +0.0219 & [+0.0169, +0.0269] \\
+four\_fit\_cutoffs & 1.5539 & +0.0345 & [+0.0293, +0.0395] \\
+temperature & 1.5193 & -0.00011 & [-0.00020, -0.00001] \\
+\bottomrule
+\end{tabular}
+\caption{Ablations against the raw pair-free tree. Intervals resample machines.}
+\end{table}

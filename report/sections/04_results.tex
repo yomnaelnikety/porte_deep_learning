@@ -1,0 +1,12 @@
+\section{Results, ablations and errors}
+\IfFileExists{tables/classical_results.tex}{\input{tables/classical_results}}{
+\todo{Insert the classical validation table from the experiment log.}}
+\todo{Add deep model validation results and the chosen model's final test result. The brief's reference scores were measured on test and should be labeled separately from local validation.}
+
+\IfFileExists{tables/classical_ablations.tex}{\input{tables/classical_ablations}}{
+\todo{Report changes in validation loss relative to the full model.}}
+\IfFileExists{tables/classical_interpretation.tex}{\input{tables/classical_interpretation}}{}
+
+\subsection{Error analysis}
+\IfFileExists{tables/classical_errors.tex}{\input{tables/classical_errors}}{}
+\todo{For the selected team model, report validation loss by event class and history length, with sample sizes. Discuss one high-loss error and one frequent confusion. Compare confidence with accuracy for the highest-confidence predictions and explain any evidence of overconfidence.}

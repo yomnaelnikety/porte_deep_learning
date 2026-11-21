@@ -1,0 +1,11 @@
+\section{Model development}
+The smoothed transition table uses the last observed event. The current-row logistic regression uses one-hot category encoding and standardized numeric values, with imputation fitted on the fitting split. These baselines help measure the gain from longer histories and nonlinear features.
+
+\subsection{Classical model}
+We tune LightGBM \cite{lightgbm} on the feature groups in Table~1 with the categorical event pair excluded. The earlier ablation on these validation machines motivated this choice. The final test set remains held out. At the selected tree settings, we restore the 196-category pair in one ablation and remove the individual lags in another. We also fit on four sampled cutoffs per machine to check whether using fewer overlapping training examples changes performance. Categorical vocabularies are fitted on fitting prefixes and unknown levels are encoded as missing for prediction. Trees handle missing numerical values directly. The model is trained from scratch using the multiclass objective.
+
+\subsection{First deep model}
+\todo{Person B. Document sequence inputs, masking, architecture, tuning, calibration and how the model handles variable prefix length.}
+
+\subsection{Second deep model}
+\todo{Person C. Document the architecture, temporal context, training settings and comparison to the first deep model.}

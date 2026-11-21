@@ -1,0 +1,52 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[margin=24mm]{geometry}
+\usepackage{amsmath,booktabs,graphicx,tabularx}
+\usepackage[hidelinks]{hyperref}
+\usepackage{xcolor}
+
+\newcommand{\teamname}{Porte}
+\newcommand{\studentnames}{Walae Laamoum \\ Eldana Ashirova \\ Yomna El Nikety}
+\newcommand{\projectrepo}{\url{https://github.com/yomnaelnikety/porte_deep_learning}}
+\newcommand{\todo}[1]{\par\smallskip\noindent\textcolor{blue!65!black}{\textit{[To complete] #1}}\par\smallskip}
+
+\begin{document}
+\hypersetup{pageanchor=false}
+\pagenumbering{gobble}
+\begin{titlepage}
+\centering
+\vspace*{30mm}
+{\Large AI2210 \textbar{} Deep Learning \& Neural Networks\par}
+\vspace{15mm}
+{\Huge\bfseries EventFlow\par}
+\vspace{3mm}
+{\LARGE Temporal Event Prediction\par}
+\vspace{19mm}
+{\large\bfseries \teamname\par}
+\vspace{5mm}
+{\large\studentnames\par}
+\vfill
+{\small Project repository\par\projectrepo\par}
+\end{titlepage}
+\pagenumbering{arabic}
+\hypersetup{pageanchor=true}
+
+\begin{abstract}
+\todo{Summarize the task, best model and final test log loss, one ablation finding and one generation finding. Write this last.}
+\end{abstract}
+
+\input{sections/01_data}
+\input{sections/02_models}
+\input{sections/03_evaluation}
+\input{sections/04_results}
+\input{sections/05_generation}
+\input{sections/06_conclusion}
+
+\clearpage
+\begin{thebibliography}{9}
+\bibitem{brief} AI2210 teaching team. \emph{EventFlow: Temporal Event Prediction}. Group project brief and baseline notebook.
+\bibitem{lightgbm} G. Ke et al. LightGBM: A Highly Efficient Gradient Boosting Decision Tree. \emph{Advances in Neural Information Processing Systems}, 2017.
+% Add the papers and technical resources actually used by the team.
+\end{thebibliography}
+\end{document}

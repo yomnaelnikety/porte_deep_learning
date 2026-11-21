@@ -1,0 +1,18 @@
+\section{Generative sequence analysis}
+\todo{Person C. Describe the generator inputs, prefix source, rollout horizon, number of prefixes, samples per prefix, sampling temperature and treatment of unavailable future measurements.}
+
+\begin{table}[htbp]
+\centering\small
+\begin{tabularx}{\linewidth}{@{}lXX@{}}
+\toprule
+Diagnostic & Calculation & Result and interpretation \\
+\midrule
+Marginal behavior & Jensen--Shannon divergence on event frequencies & [Fill after running] \\
+Local event order & Bigram/trigram comparison with matched real continuations & [Fill after running] \\
+Diversity & Duplicate continuation rate or unique n-gram ratio & [Fill after running] \\
+Timing (if generated) & Compare generated and real inter-event gaps & [Optional] \\
+\bottomrule
+\end{tabularx}
+\caption{Planned diagnostics on generated and matched real continuations.}
+\end{table}
+\todo{Show representative real and sampled continuations from the same prefix. Discuss ordering, longer-range structure, diversity and possible memorization.}

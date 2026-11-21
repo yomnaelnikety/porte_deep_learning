@@ -1,0 +1,13 @@
+,median_consecutive_abs_change,iqr
+load_reading,0.0748114,0.2854654
+temperature_reading,0.055966705,0.25666654
+temp_probe_b,0.0897809,0.2819068
+vibration_reading,0.07069406,0.37323034
+vibration_probe_b,0.07588124,0.3774528
+pressure_reading,0.06409706,0.19226739
+power_draw,0.0895713,0.23536485
+coolant_flow,0.056112483,0.43774405
+control_signal,0.076194584,0.16843295
+ambient_index,0.18869674,0.34762734
+efficiency_estimate,0.17385814,0.3671611
+acoustic_level,0.23289934,0.33998019
