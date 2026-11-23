@@ -1,0 +1,3 @@
+# Checkpoints and smoke-test outputs stay local (they are large and can be regenerated).
+*
+!.gitignore
