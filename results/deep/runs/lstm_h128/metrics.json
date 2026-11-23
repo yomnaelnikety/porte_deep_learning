@@ -1,0 +1,13 @@
+{
+  "run": "lstm_h128",
+  "early_stop_log_loss": 1.4739471673965454,
+  "best_epoch": 16,
+  "epochs_run": 20,
+  "temperature": 1.0189480714536705,
+  "validation_log_loss_raw": 1.4539669363517729,
+  "validation_log_loss": 1.453999002458242,
+  "validation_accuracy": 0.53375,
+  "n_parameters": 149614,
+  "train_targets_per_epoch": 395461,
+  "minutes": 2.8454872171084085
+}

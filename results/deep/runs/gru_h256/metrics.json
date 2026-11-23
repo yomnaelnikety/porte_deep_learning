@@ -1,0 +1,13 @@
+{
+  "run": "gru_h256",
+  "early_stop_log_loss": 1.4737682342529297,
+  "best_epoch": 13,
+  "epochs_run": 17,
+  "temperature": 1.0080120827442138,
+  "validation_log_loss_raw": 1.4633480254414108,
+  "validation_log_loss": 1.4633064093288273,
+  "validation_accuracy": 0.53,
+  "n_parameters": 429038,
+  "train_targets_per_epoch": 395461,
+  "minutes": 3.9186434149742126
+}

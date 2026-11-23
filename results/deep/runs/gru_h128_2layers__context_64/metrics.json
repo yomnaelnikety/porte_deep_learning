@@ -1,0 +1,13 @@
+{
+  "run": "gru_h128_2layers__context_64",
+  "early_stop_log_loss": 1.4730199575424194,
+  "best_epoch": 24,
+  "epochs_run": 28,
+  "temperature": 1.0041245309756643,
+  "validation_log_loss_raw": 1.4572363744316534,
+  "validation_log_loss": 1.4572512679779377,
+  "validation_accuracy": 0.5343269230769231,
+  "n_parameters": 215662,
+  "train_targets_per_epoch": 108320,
+  "minutes": 2.561655362447103
+}
