@@ -1,0 +1,15 @@
+{
+  "run": "gru_h128_2layers",
+  "validation_log_loss": 1.4521598767848063,
+  "reweighted_to_test_lengths": 1.446353619633993,
+  "validation_length_share": {
+    "90-129": 0.509,
+    "130-179": 0.3492,
+    "180-250": 0.1417
+  },
+  "test_length_share": {
+    "90-129": 0.3211,
+    "130-179": 0.3722,
+    "180-250": 0.3067
+  }
+}
