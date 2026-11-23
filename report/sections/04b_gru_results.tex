@@ -1,0 +1,18 @@
+% Recurrent model results. Included from 04_results.tex.
+\subsection{Recurrent model}
+We searched one setting at a time around a one-layer GRU with 128 units: 64 or 256 units, two layers, dropout 0.4, learning rate $10^{-3}$ and an LSTM cell. The configuration with the lowest early-stop loss was selected. The validation machines did not influence this choice.
+\IfFileExists{tables/gru_tuning.tex}{\input{tables/gru_tuning}}{}
+\IfFileExists{tables/gru_summary.tex}{\input{tables/gru_summary}}{}
+All seven configurations reached validation losses between 1.451 and 1.463, so the recurrent model is not sensitive to these choices. The LSTM (1.454) and GRU (1.451 with one layer, 1.452 with two) performed almost identically, and the two-layer GRU was selected by its early-stop loss. The one-layer GRU scored marginally better on validation, but by less than the spread between training seeds reported below, so the two are equivalent.
+\IfFileExists{figures/gru_learning_curve.pdf}{
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.62\linewidth]{figures/gru_learning_curve.pdf}
+\caption{Training and early-stop log loss of the selected recurrent model.}
+\end{figure}}{}
+
+\IfFileExists{tables/gru_ablations.tex}{\input{tables/gru_ablations}}{}
+Retraining the selected model with a different seed changed validation loss by $-0.005$. We treat smaller effects as unreliable even when their machine-bootstrap interval excludes zero, because that interval does not include training randomness. History length had by far the largest effect. With only the last 16 events, loss rose by 0.068, while the last 64 events cost only about 0.005. Most of the useful context therefore lies within roughly the last 64 events, but a few events are not enough. Removing time gaps raised loss by 0.008 (95\% CI $[0.002, 0.014]$), the only input group whose removal clearly hurt, consistent with the importance of recency features in the classical model. Removing sensor inputs (+0.004, interval spanning zero) or categorical context ($-0.005$) changed loss by no more than the seed variation. This agrees with the classical result that sensor history adds little beyond the event stream. Machine-relative sensors (+0.0004) gave no gain. Temperature scaling fitted $T=1.01$ and changed loss by less than 0.0003, because the network was already calibrated: predictions made with 80--90\% confidence were correct 85\% of the time.
+
+\IfFileExists{tables/gru_compare.tex}{\input{tables/gru_compare}}{}
+The selected GRU improves on the tuned LightGBM by 0.067 (95\% CI $[0.059, 0.076]$), larger than any single feature-group effect in the classical ablations. Averaging the two models' probabilities gave 1.459, which is 0.007 worse than the GRU alone. This suggests that LightGBM's hand-made counts and recency features add no information the GRU has not already learned from the raw sequence. A likely reason for the gain is that the GRU sees the exact order and timing of every event and is trained on about 95 prefixes per machine instead of 12 sampled cutoffs.
