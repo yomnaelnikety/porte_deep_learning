@@ -19,10 +19,10 @@ from .data import PROB_PREFIX, PROTOCOL, SEED, load_events, multiclass_loss
 from .deep_models import EventSequenceModel
 from .seq_data import CONTEXT, IGNORE, Encoder, load_protocol
 
-LENGTH_BINS = [89, 129, 179, 250]  # same buckets as the classical error analysis
+LENGTH_BINS = [89, 129, 179, 250]
 
 
-# settings
+#settings
 
 @dataclass
 class Config:
@@ -32,20 +32,26 @@ class Config:
     dropout: float = 0.2
     lr: float = 2e-3
     weight_decay: float = 1e-4
-    batch_size: int = 64  # machines per batch (each gives up to 161 targets)
+    batch_size: int = 64  #machines per batch 
     max_epochs: int = 40
-    patience: int = 4  # epochs without early-stop improvement
-    context: int = 0   # 0 = whole prefix (up to 250 events)
-    tail: int = 32  # extra trained steps per chunk when context > 0
+    patience: int = 4  #epochs without early stop improvement
+    context: int = 0   #whole prefix
+    tail: int = 32
     use_time: bool = True
     use_sensors: bool = True
     use_context: bool = True
-    relative: bool = False  # machine-relative sensors (off unless it helps)
+    relative: bool = False  #machine relative sensors 
     event_dim: int = 32
     context_dim: int = 8
     seed: int = SEED
+    heads: int = 4
+    ff_multiplier: int = 4
+    event_only: bool = False
+    eval_batch_size: int = 256
 
     def numeric_groups(self):
+        if self.event_only:
+            return []
         groups = ["position"]
         if self.use_time:
             groups.append("time")
@@ -56,6 +62,8 @@ class Config:
         return groups
 
     def feature_label(self):
+        if self.event_only:
+            return "events_only"
         parts = ["events"] + [name for name, on in [
             ("context", self.use_context), ("time", self.use_time),
             ("sensors", self.use_sensors), ("relative", self.relative)] if on]
@@ -64,7 +72,6 @@ class Config:
         return "+".join(parts)
 
 
-# One change at a time around the default ("coordinate search").
 TUNING = {
     "gru_h128": {},
     "gru_h64": {"hidden": 64},
@@ -83,15 +90,13 @@ ABLATIONS = {
     "context_16": {"context": 16},
     "context_64": {"context": 64},
     "add_relative_sensors": {"relative": True},
-    "other_seed": {"seed": SEED + 1},   # how much results move from training noise alone
+    "other_seed": {"seed": SEED + 1},
 }
 
 
 # data
 
 class Workspace:
-    """Loads the data once so several models can be trained in one process."""
-
     def __init__(self, args):
         self.args = args
         self.out = args.out
@@ -134,6 +139,15 @@ def _tensors(batch, device):
 
 
 def _build_model(cfg, encoder, n_numeric):
+    if cfg.cell == "transformer":
+        from .transformer import EventTransformer
+        return EventTransformer(
+            n_classes=len(encoder.classes),
+            context_sizes=[len(encoder.vocabs[c]) for c in CONTEXT],
+            n_numeric=n_numeric, hidden=cfg.hidden, layers=cfg.layers,
+            dropout=cfg.dropout, event_dim=cfg.event_dim, context_dim=cfg.context_dim,
+            use_context=cfg.use_context and not cfg.event_only,
+            heads=cfg.heads, ff_multiplier=cfg.ff_multiplier)
     return EventSequenceModel(
         n_classes=len(encoder.classes),
         context_sizes=[len(encoder.vocabs[c]) for c in CONTEXT],
@@ -143,12 +157,12 @@ def _build_model(cfg, encoder, n_numeric):
 
 
 @torch.no_grad()
-def predict_logits(model, store, frame, cols, cfg, device, batch_size=256):
-    """Logits for each (sequence_id, prefix_len) row of `frame`, in frame order."""
+def predict_logits(model, store, frame, cols, cfg, device, batch_size=None):
     model.eval()
+    batch_size = batch_size or cfg.eval_batch_size
     machine = store.machines(frame.sequence_id)
     length = frame.prefix_len.to_numpy()
-    order = np.argsort(length, kind="stable")      # similar lengths -> less padding
+    order = np.argsort(length, kind="stable")
     n_classes = model.head[-1].out_features
     logits = np.empty((len(frame), n_classes), dtype=np.float32)
     labels = np.empty(len(frame), dtype=np.int64)
@@ -170,10 +184,6 @@ def softmax(logits, temperature=1.0):
 
 
 def fit_temperature(logits, labels):
-    """Find T > 0 minimizing log loss of softmax(logits / T) on held-out machines.
-
-    T > 1 softens overconfident predictions, T < 1 sharpens underconfident ones.
-    Dividing all logits by the same T keeps their order, so the top class and the accuracy are unchanged; only the confidence changes."""
     z = torch.from_numpy(logits.astype(np.float64))
     y = torch.from_numpy(labels)
     log_t = torch.zeros(1, dtype=torch.float64, requires_grad=True)
@@ -192,7 +202,11 @@ def fit_temperature(logits, labels):
 # training
 
 def train_model(ws, cfg, run):
-    """Train one configuration, calibrate it, evaluate it and log it."""
+    folder = ws.out / "runs" / run
+    if folder.exists() or (ws.args.models / f"{run}.pt").exists():
+        raise FileExistsError(f"Run {run} already exists; choose a new run name")
+    if cfg.event_only and cfg.cell != "transformer":
+        raise ValueError("event_only is supported by the Transformer pipeline")
     torch.manual_seed(cfg.seed)
     rng = np.random.default_rng(cfg.seed)
     cols = ws.store.columns(cfg.numeric_groups())
@@ -220,7 +234,8 @@ def train_model(ws, cfg, run):
                                    ignore_index=IGNORE)
             opt.zero_grad(set_to_none=True)
             loss.backward()
-            torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)  # avoids exploding gradients
+            #avoid exploding gradients
+            torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
             opt.step()
             total += loss.item() * n
             count += n
@@ -242,7 +257,7 @@ def train_model(ws, cfg, run):
             break
     model.load_state_dict(best_state)
 
-    # Temperature on the calibration machines, then score validation once.
+    # temp on calibration then score validation
     cal_logits, cal_y = predict_logits(model, ws.store, ws.sets["calibration"], cols, cfg, ws.device)
     temperature = fit_temperature(cal_logits, cal_y)
     val = ws.sets["validation"]
@@ -254,7 +269,8 @@ def train_model(ws, cfg, run):
         run=run, early_stop_log_loss=best_loss, best_epoch=best_epoch, epochs_run=len(history),
         temperature=temperature, validation_log_loss_raw=raw, validation_log_loss=calibrated,
         validation_accuracy=float((val_logits.argmax(1) == val_y).mean()),
-        n_parameters=n_params, train_targets_per_epoch=count, minutes=(time.time() - started) / 60)
+        n_parameters=n_params, train_targets_per_epoch=count, minutes=(time.time() - started) / 60,
+        smoke=bool(ws.args.smoke))
     print(f"{run}: early-stop {best_loss:.4f} | T={temperature:.3f} | "
           f"validation raw {raw:.4f} -> calibrated {calibrated:.4f}", flush=True)
 
@@ -265,9 +281,15 @@ def train_model(ws, cfg, run):
     pd.DataFrame(history).to_csv(folder / "history.csv", index=False)
     np.savez_compressed(folder / "validation_logits.npz", logits=val_logits, labels=val_y,
                         sequence_id=val.sequence_id.to_numpy(), prefix_len=val.prefix_len.to_numpy())
+    predictions = val[["sequence_id", "prefix_len"]].copy()
+    predictions["target"] = targets
+    predictions[[PROB_PREFIX + c for c in ws.classes]] = softmax(val_logits, temperature)
+    predictions.to_csv(folder / "validation_predictions.csv", index=False)
     ws.args.models.mkdir(parents=True, exist_ok=True)
     torch.save(dict(config=asdict(cfg), state=model.state_dict(), encoder=ws.encoder.to_dict(),
-                    temperature=temperature, numeric=[ws.store.numeric_names[i] for i in cols]),
+                    temperature=temperature, numeric=[ws.store.numeric_names[i] for i in cols],
+                    fit_ids=ws.store.keys[ws.fit].tolist(),
+                    smoke=bool(ws.args.smoke)),
                ws.args.models / f"{run}.pt")
     _log(ws, cfg, run, metrics)
     return metrics
@@ -280,14 +302,16 @@ def _log(ws, cfg, run, metrics):
     row = dict(run=run, model=cfg.cell.upper(), features=cfg.feature_label(),
                hyperparameters=json.dumps(details), validation_log_loss=metrics["validation_log_loss"],
                seed=cfg.seed, n_train=metrics["train_targets_per_epoch"],
-               n_validation=len(ws.sets["validation"]), date_utc=stamp[:10], owner=ws.args.owner,
+               n_validation=len(ws.sets["validation"]),
+               date_utc=stamp[:10], owner=ws.args.owner,
                run_id=f"{ws.args.batch_id}-{run}", timestamp_utc=stamp, protocol=PROTOCOL,
                inner_log_loss=metrics["early_stop_log_loss"])
     assert set(row) == set(LOG_FIELDS)
-    append_experiment(ws.out / "experiments_gru.csv", row)
+    log_name = "experiments_transformer.csv" if cfg.cell == "transformer" else "experiments_gru.csv"
+    append_experiment(ws.out / log_name, row)
 
 
-# analyses
+# analysis
 
 def _load_run(out, run):
     folder = out / "runs" / run
@@ -297,8 +321,7 @@ def _load_run(out, run):
 
 
 def selected_analysis(ws, run):
-    """Error analysis for the chosen GRU, reusing the classical pipeline's function and file names."""
-    from .run import error_analysis  # imported here because run.py needs LightGBM
+    from .run import error_analysis
     data, metrics = _load_run(ws.out, run)
     prob = softmax(data["logits"], metrics["temperature"])
     frame = ws.sets["validation"][["sequence_id", "prefix_len"]].copy()
@@ -307,8 +330,6 @@ def selected_analysis(ws, run):
     folder.mkdir(exist_ok=True)
     error_analysis(frame, prob, ws.classes, folder)
 
-    # Validation cutoffs are shorter on average than test prefixes. Reweight the
-    # validation loss so each length bucket has its test share (inputs only, no labels).
     test = pd.read_csv(ws.args.data / "eventflow_test.csv", usecols=["sequence_id"])
     test_codes = pd.cut(test.groupby("sequence_id").size(), LENGTH_BINS, labels=False).to_numpy()
     val_codes = pd.cut(frame.prefix_len, LENGTH_BINS, labels=False).to_numpy()
@@ -328,7 +349,6 @@ def selected_analysis(ws, run):
 
 
 def paired_rows(ws, reference_run, others):
-    """Paired machine-bootstrap intervals, same method and seed as the classical pipeline."""
     ref, ref_metrics = _load_run(ws.out, reference_run)
     targets = np.asarray(ws.classes)[ref["labels"]]
     ref_loss = example_loss(targets, softmax(ref["logits"], ref_metrics["temperature"]), ws.classes)
@@ -349,7 +369,7 @@ def _selected(out):
     return json.loads(path.read_text())
 
 
-#  commands
+#commands
 
 def cmd_train(ws, args):
     overrides = json.loads(args.config) if args.config else {}
@@ -366,7 +386,6 @@ def cmd_tune(ws, args):
             results.append(json.loads((folder / "metrics.json").read_text()))
             continue
         results.append(train_model(ws, replace(Config(), **TUNING[name]), name))
-    # Choose on the early-stop machines, never on validation.
     best = min(results, key=lambda m: m["early_stop_log_loss"])
     config = json.loads((ws.out / "runs" / best["run"] / "config.json").read_text())
     (ws.out / "selected_gru.json").write_text(json.dumps(dict(run=best["run"], config=config,
@@ -383,7 +402,7 @@ def cmd_ablate(ws, args):
     others = []
     for name, change in ABLATIONS.items():
         if all(getattr(base, k) == v for k, v in change.items()):
-            continue  # the selected model already has this setting
+            continue
         run = f"{chosen['run']}__{name}"
         folder = ws.out / "runs" / run
         if not (args.resume and (folder / "metrics.json").exists()):
@@ -398,7 +417,6 @@ def cmd_ablate(ws, args):
 
 
 def cmd_compare(ws, args):
-    """GRU versus the selected LightGBM on the same 10,400 validation rows."""
     chosen = _selected(ws.out)
     data, metrics = _load_run(ws.out, chosen["run"])
     other = pd.read_csv(args.other)
@@ -410,7 +428,6 @@ def cmd_compare(ws, args):
     gru = softmax(data["logits"], metrics["temperature"])
     rows = paired_rows(ws, chosen["run"], [
         ("lightgbm_selected", "model", lgbm),
-        # Exploratory: equal weights, nothing tuned on validation.
         ("average_gru_lightgbm", "ensemble", (gru + lgbm) / 2),
     ])
     pd.DataFrame(rows).to_csv(ws.out / "compare_gru_vs_classical.csv", index=False)
@@ -418,7 +435,6 @@ def cmd_compare(ws, args):
 
 
 def cmd_predict(args):
-    """Test probabilities from a saved checkpoint (trained on the fitting machines)."""
     run = args.run or _selected(args.out)["run"]
     saved = torch.load(args.models / f"{run}.pt", map_location="cpu", weights_only=False)
     cfg = Config(**saved["config"])
@@ -440,7 +456,6 @@ def cmd_predict(args):
 
 
 def cmd_smoke(args):
-    """Small, fast run of every stage, written to models/smoke (ignored by git)."""
     args.out = args.models / "smoke"
     args.models = args.models / "smoke"
     args.smoke = True
