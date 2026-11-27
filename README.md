@@ -42,6 +42,12 @@ Feature and cutoff-count ablations hold the selected tree settings and boosting 
 
 ## Team handoff
 
+The Transformer and generation pipeline is documented in
+[docs/transformer_generation.md](docs/transformer_generation.md), including commands,
+leakage controls, evaluation methods, and recorded results. Start with
+`python -m eventflow.train_transformer smoke --data ..` after installing both
+requirements files and the package.
+
 Use [docs/shared_protocol.md](docs/shared_protocol.md) to integrate the deep models. Record their experiments in the same schema as `results/experiments.csv`. The classical script appends one row per completed result with a timestamp and run ID. It preserves v1 rows and tags them with their original protocol. The v2 label identifies the shared validation manifest. The first v2 batch included the event pair in its main model, the second excluded it with a 260-round cap, and the third retained the exclusion with a 600-round cap. `results/latest_experiments.csv` is regenerated for the report. Give other models their own log files and combine the tables for the team report. View the generated CSVs in the notebook or a read-only viewer so the exports remain reproducible.
 
 Once the team chooses its final model, use the test prefixes. If the classical model wins, refit it using the fixed cutoffs from both local splits and produce probabilities. The refit uses the chosen round count. It respects the saved feature exclusions and applies the method stored in the selected configuration. Any calibration parameters were fitted on the separate 520-machine calibration set using predictions from the original 4,160-machine tree. Their effect after transfer to the refit has not been measured:

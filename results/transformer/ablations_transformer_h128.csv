@@ -1,0 +1,8 @@
+model,log_loss,delta_vs_transformer,ci_95_low,ci_95_high
+transformer_h128,1.474833306653348,0.0,0.0,0.0
+results/transformer/runs/transformer_h128__no_time/validation_predictions.csv,1.4855966884020764,0.01076338174872825,0.006023309462206163,0.015316410655808447
+results/transformer/runs/transformer_h128__no_sensors/validation_predictions.csv,1.4881727005082757,0.01333939385492746,0.008063758498713281,0.018501628504430222
+results/transformer/runs/transformer_h128__no_context/validation_predictions.csv,1.47628723380607,0.0014539271527217663,-0.0022631000728927366,0.005161534541930988
+results/transformer/runs/transformer_h128__context16/validation_predictions.csv,1.5214922765810899,0.04665896992774168,0.039635900383181065,0.053989005638265385
+results/transformer/runs/transformer_h128__context64/validation_predictions.csv,1.4912920949960282,0.01645878834268013,0.011262299923063206,0.021690140991155207
+results/transformer/runs/transformer_h128__other_seed/validation_predictions.csv,1.480143565714656,0.005310259061307841,0.0011862343812335824,0.0095261155538225

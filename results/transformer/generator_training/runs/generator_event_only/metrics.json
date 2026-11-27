@@ -1,0 +1,14 @@
+{
+  "run": "generator_event_only",
+  "early_stop_log_loss": 1.5157196521759033,
+  "best_epoch": 30,
+  "epochs_run": 34,
+  "temperature": 1.073063025047561,
+  "validation_log_loss_raw": 1.497905872486687,
+  "validation_log_loss": 1.4958927774242854,
+  "validation_accuracy": 0.52,
+  "n_parameters": 403310,
+  "train_targets_per_epoch": 395461,
+  "minutes": 11.540786401430767,
+  "smoke": false
+}

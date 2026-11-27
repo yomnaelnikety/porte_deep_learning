@@ -1,0 +1,14 @@
+{
+  "run": "transformer_h128__no_context",
+  "early_stop_log_loss": 1.491517186164856,
+  "best_epoch": 27,
+  "epochs_run": 31,
+  "temperature": 1.0703584956747643,
+  "validation_log_loss_raw": 1.4786118172677625,
+  "validation_log_loss": 1.476287233806069,
+  "validation_accuracy": 0.5236538461538461,
+  "n_parameters": 407662,
+  "train_targets_per_epoch": 395461,
+  "minutes": 8.95046288172404,
+  "smoke": false
+}

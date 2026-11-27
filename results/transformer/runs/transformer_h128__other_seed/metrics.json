@@ -1,0 +1,14 @@
+{
+  "run": "transformer_h128__other_seed",
+  "early_stop_log_loss": 1.5011900663375854,
+  "best_epoch": 24,
+  "epochs_run": 28,
+  "temperature": 1.0594844034318693,
+  "validation_log_loss_raw": 1.4814671172359193,
+  "validation_log_loss": 1.4801435657146553,
+  "validation_accuracy": 0.5261538461538462,
+  "n_parameters": 414062,
+  "train_targets_per_epoch": 395461,
+  "minutes": 8.155143634478252,
+  "smoke": false
+}

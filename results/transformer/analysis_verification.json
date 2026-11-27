@@ -1,0 +1,73 @@
+{
+  "ablations": [
+    {
+      "run": "transformer_h128__no_time",
+      "validation_log_loss": 1.4855966884020761,
+      "epochs": 37,
+      "best_epoch": 33,
+      "train_targets_last_epoch": 395461,
+      "minutes": 12.618036250273386,
+      "config_checked": true,
+      "predictions_checked": true,
+      "checkpoint_checked": true
+    },
+    {
+      "run": "transformer_h128__no_sensors",
+      "validation_log_loss": 1.4881727005082754,
+      "epochs": 39,
+      "best_epoch": 35,
+      "train_targets_last_epoch": 395461,
+      "minutes": 11.603268198172252,
+      "config_checked": true,
+      "predictions_checked": true,
+      "checkpoint_checked": true
+    },
+    {
+      "run": "transformer_h128__no_context",
+      "validation_log_loss": 1.4762872338060697,
+      "epochs": 31,
+      "best_epoch": 27,
+      "train_targets_last_epoch": 395461,
+      "minutes": 8.95046288172404,
+      "config_checked": true,
+      "predictions_checked": true,
+      "checkpoint_checked": true
+    },
+    {
+      "run": "transformer_h128__context16",
+      "validation_log_loss": 1.5214922765810897,
+      "epochs": 29,
+      "best_epoch": 25,
+      "train_targets_last_epoch": 108620,
+      "minutes": 1.362572149435679,
+      "config_checked": true,
+      "predictions_checked": true,
+      "checkpoint_checked": true
+    },
+    {
+      "run": "transformer_h128__context64",
+      "validation_log_loss": 1.4912920949960282,
+      "epochs": 30,
+      "best_epoch": 26,
+      "train_targets_last_epoch": 109284,
+      "minutes": 2.7390776832898456,
+      "config_checked": true,
+      "predictions_checked": true,
+      "checkpoint_checked": true
+    },
+    {
+      "run": "transformer_h128__other_seed",
+      "validation_log_loss": 1.480143565714656,
+      "epochs": 28,
+      "best_epoch": 24,
+      "train_targets_last_epoch": 395461,
+      "minutes": 8.155143634478252,
+      "config_checked": true,
+      "predictions_checked": true,
+      "checkpoint_checked": true
+    }
+  ],
+  "baseline_comparison_preserved": true,
+  "selected_model_unchanged": true,
+  "test_data_used": false
+}

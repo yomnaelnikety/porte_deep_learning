@@ -1,0 +1,14 @@
+{
+  "run": "transformer_1layer",
+  "early_stop_log_loss": 1.526204228401184,
+  "best_epoch": 22,
+  "epochs_run": 26,
+  "temperature": 1.0371852342490895,
+  "validation_log_loss_raw": 1.5039553437846225,
+  "validation_log_loss": 1.5037935716085888,
+  "validation_accuracy": 0.5178846153846154,
+  "n_parameters": 215790,
+  "train_targets_per_epoch": 395461,
+  "minutes": 4.1267968336741125,
+  "smoke": false
+}

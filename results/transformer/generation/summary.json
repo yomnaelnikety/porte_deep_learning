@@ -1,0 +1,44 @@
+{
+  "js_1gram": {
+    "mean": 0.0006915568676563821,
+    "sampling_std": 0.0001734135621993236
+  },
+  "js_2gram": {
+    "mean": 0.0029380221335355496,
+    "sampling_std": 0.00037182363015155254
+  },
+  "js_3gram": {
+    "mean": 0.029878901985812712,
+    "sampling_std": 0.0007468011200354794
+  },
+  "duplicate_rate": {
+    "mean": 7.692307692307443e-05,
+    "sampling_std": 0.0002432521277052521
+  },
+  "unique_2gram_ratio": {
+    "mean": 0.007931174089068826,
+    "sampling_std": 1.2802743563434724e-05
+  },
+  "unique_3gram_ratio": {
+    "mean": 0.07777777777777778,
+    "sampling_std": 0.001324250113583144
+  },
+  "real_diversity": {
+    "duplicate_rate": 0.0,
+    "unique_2gram_ratio": 0.007894736842105263,
+    "unique_3gram_ratio": 0.07641025641025641
+  },
+  "within_prefix_duplicate_rate": 0.0,
+  "n_prefixes": 1300,
+  "samples_per_prefix": 10,
+  "n_generated": 13000,
+  "horizon": 20,
+  "calibration_temperature": 1.073063025047561,
+  "sampling_multiplier": 1.0,
+  "effective_temperature": 1.073063025047561,
+  "seed": 2210,
+  "smoke": false,
+  "checkpoint": "models/transformer/generator_event_only.pt",
+  "checkpoint_sha256": "a818e0e6c5fe234f7fede723e8d52a377679989b4d55e26b0873482747bd4441",
+  "note": "JS uses natural logs. Diversity uses matched corpus sizes. Sampling SD is not a CI. Diversity alone does not establish absence of memorization; n-grams do not establish long-range realism."
+}
