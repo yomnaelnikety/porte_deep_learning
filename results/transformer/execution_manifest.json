@@ -1,0 +1,35 @@
+{
+  "command": ".venv/bin/python -u -m eventflow.train_transformer tune --data .. --resume",
+  "recorded_utc": "2026-11-23T20:34:41.863384+00:00",
+  "python": "3.12.14",
+  "platform": "macOS-26.7.2-arm64-arm-64bit",
+  "packages": {
+    "torch": "2.8.0",
+    "numpy": "2.3.5",
+    "pandas": "2.2.3",
+    "scipy": "1.17.0"
+  },
+  "git_base": "c294440bb6edad23afb41c062a266a9a1a003dc5",
+  "files_sha256": {
+    "src/eventflow/run.py": "360c1cd996b5b38d5b26b9837ef7785a79722ee191c81ea0ee4b6d932b5650e0",
+    "src/eventflow/analysis.py": "1b97dd2b5e8af5322130d92c8fa9e8e09f0a58c5e543900f14f9daf90f0ea298",
+    "src/eventflow/generate.py": "a8b43dcb60c92d55702250c878df4b6ad66aeb29c789955c325171566f281f88",
+    "src/eventflow/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "src/eventflow/features.py": "352d39dad16f0c00bc80e9eb6e3b5da2777bee023abc503deb7477ccaa82f81d",
+    "src/eventflow/eda.py": "27c71d87d20913d313eee8663178c9a2db4968e8fcabf1b825ba60a28093e4d2",
+    "src/eventflow/transformer.py": "8b2eb441f7f77c8008bc75cb30c62048d241d7bf521508f7ea3ca10d7242e5d2",
+    "src/eventflow/deep_models.py": "2bf9ea2e9ea04422b12d561cbfa8a9bcb194448cb59b2b9026db6d01218b1d50",
+    "src/eventflow/seq_data.py": "9b573d99804a9e1dd8d6e0dc6f1a429701e17a1cd8c1a9ddd93a5caf5b3c0af7",
+    "src/eventflow/train_transformer.py": "dd4eebf0a54e7f57dae0b09372ae31b81735078f8d59f4d95d7b00a627635c49",
+    "src/eventflow/train_deep.py": "292fe989fe19aba8740b8eced9d0836a01e8c599dc2df93a80ca0a375a892f71",
+    "src/eventflow/data.py": "b5c91216d4ba17f169e189cc14aef6a40363fbcf62b22ee535614ec69152b625",
+    "results/classes.json": "15190ef19fff933adf11eb2358281bb9048851e6b1a6410270574c948cfcfe0c",
+    "results/prefix_manifest.csv": "e47d3733c3f73f1be79f4ba7e6f37442e905eb7e0b45c4f3ed131cc18c38ba07",
+    "results/classical_inner_split.csv": "a532b81f35518144aa8a802c965f9405871a0260086c233f057363a4a40df512",
+    "results/validation_predictions.csv": "745d8434e454eeb558797baa4ea83a87ec2bb4a326cff51b1fd8cbf73cfec72d",
+    "results/deep/selected_errors/validation_predictions.csv": "342e4b68930e3717257cc680b8e82c267d4e13c6265706a62c21c4f6aefcb954",
+    "../eventflow_train.csv": "680982620368ec4bdac512e7169dc27bb4441a748a947add6046ce7de680b4ef"
+  },
+  "test_data_used": false,
+  "selection_rule": "Minimum early-stop log loss; validation is used for reporting only."
+}

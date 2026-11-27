@@ -44,8 +44,14 @@ class Config:
     event_dim: int = 32
     context_dim: int = 8
     seed: int = SEED
+    heads: int = 4  # Transformer only
+    ff_multiplier: int = 4  # Transformer only
+    event_only: bool = False  # generation: no unavailable future covariates
+    eval_batch_size: int = 256
 
     def numeric_groups(self):
+        if self.event_only:
+            return []
         groups = ["position"]
         if self.use_time:
             groups.append("time")
@@ -56,6 +62,8 @@ class Config:
         return groups
 
     def feature_label(self):
+        if self.event_only:
+            return "events_only"
         parts = ["events"] + [name for name, on in [
             ("context", self.use_context), ("time", self.use_time),
             ("sensors", self.use_sensors), ("relative", self.relative)] if on]
@@ -134,6 +142,15 @@ def _tensors(batch, device):
 
 
 def _build_model(cfg, encoder, n_numeric):
+    if cfg.cell == "transformer":
+        from .transformer import EventTransformer
+        return EventTransformer(
+            n_classes=len(encoder.classes),
+            context_sizes=[len(encoder.vocabs[c]) for c in CONTEXT],
+            n_numeric=n_numeric, hidden=cfg.hidden, layers=cfg.layers,
+            dropout=cfg.dropout, event_dim=cfg.event_dim, context_dim=cfg.context_dim,
+            use_context=cfg.use_context and not cfg.event_only,
+            heads=cfg.heads, ff_multiplier=cfg.ff_multiplier)
     return EventSequenceModel(
         n_classes=len(encoder.classes),
         context_sizes=[len(encoder.vocabs[c]) for c in CONTEXT],
@@ -143,9 +160,10 @@ def _build_model(cfg, encoder, n_numeric):
 
 
 @torch.no_grad()
-def predict_logits(model, store, frame, cols, cfg, device, batch_size=256):
+def predict_logits(model, store, frame, cols, cfg, device, batch_size=None):
     """Logits for each (sequence_id, prefix_len) row of `frame`, in frame order."""
     model.eval()
+    batch_size = batch_size or cfg.eval_batch_size
     machine = store.machines(frame.sequence_id)
     length = frame.prefix_len.to_numpy()
     order = np.argsort(length, kind="stable")      # similar lengths -> less padding
@@ -193,6 +211,11 @@ def fit_temperature(logits, labels):
 
 def train_model(ws, cfg, run):
     """Train one configuration, calibrate it, evaluate it and log it."""
+    folder = ws.out / "runs" / run
+    if folder.exists() or (ws.args.models / f"{run}.pt").exists():
+        raise FileExistsError(f"Run {run} already exists; choose a new run name")
+    if cfg.event_only and cfg.cell != "transformer":
+        raise ValueError("event_only is supported by the Transformer pipeline")
     torch.manual_seed(cfg.seed)
     rng = np.random.default_rng(cfg.seed)
     cols = ws.store.columns(cfg.numeric_groups())
@@ -254,7 +277,8 @@ def train_model(ws, cfg, run):
         run=run, early_stop_log_loss=best_loss, best_epoch=best_epoch, epochs_run=len(history),
         temperature=temperature, validation_log_loss_raw=raw, validation_log_loss=calibrated,
         validation_accuracy=float((val_logits.argmax(1) == val_y).mean()),
-        n_parameters=n_params, train_targets_per_epoch=count, minutes=(time.time() - started) / 60)
+        n_parameters=n_params, train_targets_per_epoch=count, minutes=(time.time() - started) / 60,
+        smoke=bool(ws.args.smoke))
     print(f"{run}: early-stop {best_loss:.4f} | T={temperature:.3f} | "
           f"validation raw {raw:.4f} -> calibrated {calibrated:.4f}", flush=True)
 
@@ -265,9 +289,15 @@ def train_model(ws, cfg, run):
     pd.DataFrame(history).to_csv(folder / "history.csv", index=False)
     np.savez_compressed(folder / "validation_logits.npz", logits=val_logits, labels=val_y,
                         sequence_id=val.sequence_id.to_numpy(), prefix_len=val.prefix_len.to_numpy())
+    predictions = val[["sequence_id", "prefix_len"]].copy()
+    predictions["target"] = targets
+    predictions[[PROB_PREFIX + c for c in ws.classes]] = softmax(val_logits, temperature)
+    predictions.to_csv(folder / "validation_predictions.csv", index=False)
     ws.args.models.mkdir(parents=True, exist_ok=True)
     torch.save(dict(config=asdict(cfg), state=model.state_dict(), encoder=ws.encoder.to_dict(),
-                    temperature=temperature, numeric=[ws.store.numeric_names[i] for i in cols]),
+                    temperature=temperature, numeric=[ws.store.numeric_names[i] for i in cols],
+                    fit_ids=ws.store.keys[ws.fit].tolist(),
+                    smoke=bool(ws.args.smoke)),
                ws.args.models / f"{run}.pt")
     _log(ws, cfg, run, metrics)
     return metrics
@@ -280,11 +310,13 @@ def _log(ws, cfg, run, metrics):
     row = dict(run=run, model=cfg.cell.upper(), features=cfg.feature_label(),
                hyperparameters=json.dumps(details), validation_log_loss=metrics["validation_log_loss"],
                seed=cfg.seed, n_train=metrics["train_targets_per_epoch"],
-               n_validation=len(ws.sets["validation"]), date_utc=stamp[:10], owner=ws.args.owner,
+               n_validation=len(ws.sets["validation"]),
+               date_utc=stamp[:10], owner=ws.args.owner,
                run_id=f"{ws.args.batch_id}-{run}", timestamp_utc=stamp, protocol=PROTOCOL,
                inner_log_loss=metrics["early_stop_log_loss"])
     assert set(row) == set(LOG_FIELDS)
-    append_experiment(ws.out / "experiments_gru.csv", row)
+    log_name = "experiments_transformer.csv" if cfg.cell == "transformer" else "experiments_gru.csv"
+    append_experiment(ws.out / log_name, row)
 
 
 # analyses

@@ -1,0 +1,11 @@
+{
+  "prefixes": 1300,
+  "continuations": 13000,
+  "horizon": 20,
+  "all_class_ids_valid": true,
+  "manifest_matches": true,
+  "all_real_suffixes_verified": true,
+  "json_matches_arrays": true,
+  "diagnostics_recomputed": true,
+  "test_data_used": false
+}

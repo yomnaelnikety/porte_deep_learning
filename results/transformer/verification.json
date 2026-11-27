@@ -1,0 +1,26 @@
+[
+  {
+    "run": "transformer_h128",
+    "validation_rows": 10400,
+    "log_loss_recomputed": 1.474833306653348,
+    "checkpoint_verified": true
+  },
+  {
+    "run": "transformer_h64",
+    "validation_rows": 10400,
+    "log_loss_recomputed": 1.4997876337713405,
+    "checkpoint_verified": true
+  },
+  {
+    "run": "transformer_1layer",
+    "validation_rows": 10400,
+    "log_loss_recomputed": 1.5037935716085895,
+    "checkpoint_verified": true
+  },
+  {
+    "run": "transformer_lr3e-4",
+    "validation_rows": 10400,
+    "log_loss_recomputed": 1.4910728962648765,
+    "checkpoint_verified": true
+  }
+]

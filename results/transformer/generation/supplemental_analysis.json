@@ -1,0 +1,31 @@
+{
+  "longer_structure": {
+    "lag_1_js": {
+      "mean": 0.0029380221335355496,
+      "sampling_std": 0.00037182363015155254
+    },
+    "lag_5_js": {
+      "mean": 0.0038905395917052583,
+      "sampling_std": 0.0003064380678423129
+    },
+    "lag_10_js": {
+      "mean": 0.005731980679572477,
+      "sampling_std": 0.0004812359490623358
+    },
+    "longest_repeat_run_js": {
+      "mean": 0.00411441823657064,
+      "sampling_std": 0.0012291088340364341
+    }
+  },
+  "training_window_matches": {
+    "n_fitting_machines": 4160,
+    "horizon": 20,
+    "training_exposure_limit_events": 251,
+    "n_training_windows": 690821,
+    "n_unique_training_windows": 685322,
+    "real_exact_training_window_match_rate": 0.013846153846153847,
+    "generated_exact_training_window_match_rate": 0.014307692307692308,
+    "note": "Exact matches can arise naturally in common event patterns; compare the real rate. No exact matches does not rule out partial or approximate memorization."
+  },
+  "note": "Lag statistics test dependencies up to 10 events within the 20-event horizon. They do not establish global sequence realism. SD measures sampling variation, not a confidence interval."
+}
